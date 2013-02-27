@@ -1,0 +1,973 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+
+<head>
+  <meta charset="utf-8">
+
+  <title>TDD and Emergent Design with JS</title>
+
+  <meta name="description"
+        content="Slides of my TDD workshop (between 4 and 8 hours long)">
+  <meta name="author" content="Enrique Amodeo">
+
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style"
+        content="black-translucent"/>
+
+  <link rel="stylesheet" href="reveal.js-2.1/css/reveal.css">
+  <link rel="stylesheet" href="reveal.js-2.1/css/theme/default.css" id="theme">
+
+  <!-- For syntax highlighting -->
+  <link rel="stylesheet" href="reveal.js-2.1/lib/css/zenburn.css">
+
+  <style>
+      /* Aside */
+    .left {
+      float: left;
+    }
+
+    img.left {
+      margin: 0;
+      padding: 0;
+      width: 30%;
+    }
+
+    img.left + ul {
+      margin: 0;
+      width: 55%;
+    }
+
+      /* Figures with captions */
+    .reveal section figure {
+      position: relative;
+      margin: 0 auto;
+      padding: 0;
+      width: 600px;
+      height: 400px;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .reveal section figure > img {
+      width: 100%;
+      max-height: none;
+      border-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .reveal section figure > figcaption {
+      position: absolute;
+      bottom: 0.5em;
+      left: 0;
+      width: 100%;
+      border-style: none;
+      border-width: 0;
+      margin: 0;
+      padding: 0;
+      background-color: rgb(37, 33, 28);
+      background-color: rgba(37, 33, 28, 0.5);
+      font-size: 0.4em;
+      text-align: center;
+    }
+
+    .reveal section figure > figcaption {
+      line-height: 1.5em;
+      vertical-align: middle;
+    }
+
+    .reveal section figure > figcaption a {
+      line-height: 1.5em !important;
+    }
+
+      /* Cover */
+    .reveal section.cover footer {
+      line-height: 33px;
+      clear: both;
+    }
+
+    .reveal section.cover > footer {
+      position: absolute;
+      bottom: 0.5em;
+      left: 0;
+      border-style: none;
+      border-width: 0;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      background-color: rgb(37, 33, 28);
+      background-color: rgba(37, 33, 28, 0.5);
+      font-size: 0.4em;
+      text-align: center;
+    }
+
+    .reveal section.cover footer img {
+      float: left;
+      margin: 0 1em 0 0;
+      padding: 0;
+      cursor: pointer;
+      border-style: none;
+    }
+
+    .reveal section.cover footer a,
+    .reveal section.cover footer span {
+      margin: 0;
+      padding: 0;
+      vertical-align: baseline;
+      line-height: 33px;
+    }
+
+      /* Separata */
+    .reveal section.separata hgroup {
+      margin-top: 0.5em;
+    }
+
+    .reveal section.separata hgroup h2,
+    .reveal section.separata hgroup h3,
+    .reveal section.separata hgroup h4 {
+      color: #F0F1EB;
+      text-shadow: #111150 0px 0px 0.2em;
+    }
+
+    .reveal section.separata figure {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    .reveal section.separata figure > img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      border-style: none;
+      border-width: 0;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      z-index: -1;
+    }
+
+      /* Animation */
+    div.animation-container {
+      position: relative;
+      margin: 0 auto;
+      padding: 0;
+      width: 809px;
+      height: 399px;
+      background-color: transparent;
+      -moz-box-shadow: rgba(0, 0, 0, 0.3) 0px 0px 6px 0px;
+      -webkit-box-shadow: rgba(0, 0, 0, 0.3) 0px 0px 6px 0px;
+      box-shadow: rgba(0, 0, 0, 0.3) 0px 0px 6px 0px;
+      overflow: hidden;
+    }
+
+    .animation-container .frame,
+    .animation-container .frame > img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      border: 0;
+      border-style: none;
+      padding: 0;
+      margin: 0;
+      min-width: 100%;
+      max-width: none;
+      max-height: none;
+      box-shadow: none
+    }
+
+    .animation-container .frame > img.loader {
+      position: absolute;
+      top: 140px;
+      left: 180px;
+      border: 0;
+      border-style: none;
+      padding: 0;
+      margin: 0;
+      width: 126px;
+      min-width: 126px;
+      box-shadow: none;
+    }
+  </style>
+  <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+  <script>
+    document.write('<link rel="stylesheet" href="reveal.js-2.1/css/print/' + ( window.location.search.match(/print-pdf/gi) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">');
+  </script>
+
+  <!--[if lt IE 9]>
+  <script src="reveal.js-2.1/lib/js/html5shiv.js"></script>
+  <![endif]-->
+</head>
+
+<body>
+
+<div class="reveal">
+
+<!-- Any section element inside of this container is displayed as a slide -->
+<div class="slides">
+
+<section class="cover">
+  <h1>TDD</h1>
+
+  <h1>&</h1>
+
+  <h1>Emergent Design</h1>
+
+  <h2>(With JavaScript)</h2>
+
+  <p>
+    <small>By <a
+            href="http://eamodeorubio.wordpress.com/about/">Enrique
+      Amodeo</a> /
+      <a href="http://twitter.com/eamodeorubio">@eamodeorubio</a></small>
+  </p>
+  <footer>
+    <a rel="license"
+       href="http://creativecommons.org/licenses/by-nc-sa/2.0/">
+      <img alt="Creative Commons License"
+           src="http://i.creativecommons.org/l/by-nc-sa/2.0/88x31.png"/>
+    </a>
+    <span>This work is licensed under a </span>
+    <a rel="license"
+       href="http://creativecommons.org/licenses/by-nc-sa/2.0/">
+      Creative Commons Attribution-NonCommercial-ShareAlike 2.0 Generic
+      License
+    </a>
+
+  </footer>
+</section>
+
+<section>
+  <h2>Enrique Amodeo</h2>
+  <h4>(who is this guy?)</h4>
+
+  <img src="img/EnriqueAmodeo.jpg" class="left"
+       alt="[Enrique Amodeo, circa 2010]">
+  <ul>
+    <li>Working as a professional since 2000</li>
+    <li>Worked with JAVA/JEE and big companies</li>
+    <li>Has loved JS since 2005</li>
+    <li>Test infected</li>
+    <li>Enthusiast of the Agile/Lean way</li>
+    <li>Now Freelancing</li>
+    <li>Follow me at
+      <a href="https://twitter.com/eamodeorubio">@eamodeorubio</a></li>
+  </ul>
+</section>
+
+<section>
+  <h2>This workshop</h2>
+  <h4>(prepare for 4-8h of practice!)</h4>
+  <ol>
+    <li>TDD lifecycle</li>
+    <li>Emergent design</li>
+    <li>Pair programming ping pong style</li>
+    <li>Do I need to refactor? (SOLID)</li>
+    <li>Implementing the basic requisites with TDD</li>
+    <li>Test doubles</li>
+    <li>Implementing the advanced requisites with TDD</li>
+    <li>Testable architecture</li>
+  </ol>
+</section>
+
+<section class="separata">
+  <hgroup>
+    <h2>TDD</h2>
+
+    <h3>(either unit or end to end test)</h3>
+  </hgroup>
+  <figure>
+    <img src="./img/tdd.png">
+    <figcaption>
+      <span>A TDD session with JS in one of my projects</span>
+    </figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>Basic lifecycle</h2>
+  <img src="img/tddcycle.png">
+</section>
+
+<!--
+<section>
+  <h2>What I really do</h2>
+
+
+</section>
+-->
+<section>
+  <h2>What is TDD for?</h2>
+
+  <div class="fragment" style="margin-top: 1em">
+    <h4>What are unit tests for?</h4>
+    <ul>
+      <li>Methodology: from tasks to code</li>
+      <li>Design technique: emergent design</li>
+      <li>Testing: does my code implements my design?</li>
+    </ul>
+  </div>
+
+  <div class="fragment" style="margin-top: 1em">
+    <h4>What is BDD for?</h4>
+    <ul>
+      <li>Methodology: from features to code</li>
+      <li>Design technique: emergent architecture, tracer bullet</li>
+      <li>Specification technique: executable spec</li>
+      <li>Testing: does my code implements the features?</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2>Emergent design</h2>
+  <h4>(balance plan & execution)</h4>
+  <ul>
+    <li>Just enough upfront design</li>
+    <li>Let the code tell you when to redesign</li>
+    <li>Refactor as design tool</li>
+    <li>TDD lifecycle main goal</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Emergent design</h2>
+  <h4>(balance your mindset)</h4>
+  <img src="img/mindset.png">
+</section>
+
+<section>
+  <h2>Pair programming</h2>
+  <h4>(team work)</h4>
+
+  <ul>
+    <li>Team work</li>
+    <li>Driver: the person with the keyboard</li>
+    <li>Copilot: the person without the keyboard</li>
+    <li>Driver explains what he is doing</li>
+    <li>Copilot watches for errors and mistakes</li>
+    <li>Copilot keeps the driver honest</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Pair programming</h2>
+  <h4>(ping pong)</h4>
+
+  <ol>
+    <li>Driver make the test pass</li>
+    <li>Driver does the refactoring</li>
+    <li>Driver write a failing test</li>
+    <li>Pass the keyboard to your partner</li>
+  </ol>
+</section>
+
+<section class="separata">
+  <hgroup>
+    <h2>SOLID</h2>
+
+    <h3>(when to refactor)</h3>
+  </hgroup>
+  <figure>
+    <img src="./img/gears.jpg">
+    <figcaption>
+      <span>Original by Sonny Abesamis: </span>
+      <a href="http://www.flickr.com/photos/enerva/4302079406/"
+         target="_blank">http://bit.ly/KB7m8s</a>
+    </figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>Do I need to refactor?</h2>
+
+  <p class="fragment">As soon as your code is not maintanable</p>
+
+  <p class="fragment">Is my code maintanable?</p>
+
+  <p class="fragment">Follow the good code rules</p>
+</section>
+
+<section>
+  <h2>Rules for maintanable code</h2>
+  <h4>(in order of importance)</h4>
+
+  <ol>
+    <li>Readable</li>
+    <li>DRY</li>
+    <li>SOLID</li>
+  </ol>
+</section>
+
+<section>
+  <h2>SOLID</h2>
+  <h4>(S for Single Responsability)</h4>
+  <ul>
+    <li>Each artifact solves a single problem</li>
+    <li>Single reason to change: the problem spec changed</li>
+    <li>In practice: a lot of specialized & focused objects</li>
+  </ul>
+</section>
+
+<section>
+  <h2>SOLID</h2>
+  <h4>(O for Open/Closed)</h4>
+  <ul>
+    <li>Open for extension</li>
+    <li>Closed for modification</li>
+    <li>Implement only your core responsability</li>
+    <li>Delegate details to collaborators</li>
+  </ul>
+</section>
+
+<section>
+  <h2>SOLID</h2>
+  <h4>(L for Liskov)</h4>
+  <ul>
+    <li>Semantic subclass</li>
+    <li>Honor the contract you implement</li>
+    <li>Don't mind about the specific implementation</li>
+  </ul>
+</section>
+
+<section>
+  <h2>SOLID</h2>
+  <h4>(I for Interface Segregation)</h4>
+  <ul>
+    <li>Interfaces must have Single Responsability</li>
+    <li>Each role of a collaboration must be focused</li>
+    <li>In practice: focused role interfaces</li>
+  </ul>
+</section>
+
+<section>
+  <h2>SOLID</h2>
+  <h4>(D for Dependency Inversion)</h4>
+  <ul>
+    <li>Not to be confused with "Dependency Injection"</li>
+    <li>An object must depend only on its collaborator</li>
+    <li>Collaboration breaks down complexity</li>
+    <li>Collaborators only 1 level of abstraction below</li>
+    <li>Collaborations must be simple</li>
+    <li>Never code domain objects against platform APIs</li>
+    <li>Never code domain objects against framework APIs</li>
+  </ul>
+</section>
+
+
+<section class="separata">
+  <hgroup>
+    <h2>Code time !!</h2>
+
+    <h3>(enough theory)</h3>
+  </hgroup>
+
+  <figure>
+    <img src="./img/code.png">
+    <figcaption>
+      <span>This clearly needs a good refactor...</span>
+    </figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>The PimPam Game</h2>
+  <h4>(my next startup, a FizzBuzz clone!)</h4>
+  <ul>
+    <li>Receives a number and returns a string</li>
+    <li>If number divisible by 3 returns "Pim"</li>
+    <li>If number divisible by 5 returns "Pam"</li>
+    <li>If number divisible by 3 and 5 returns "PimPam"</li>
+    <li>It will go viral for sure!</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Iteration 1</h2>
+  <h4>(you have 5 min)</h4>
+  <ul>
+    <li>Set up your enviroment</li>
+    <li>Create a project with a TDD infrastructure</li>
+    <li>Write the most simple test you can think of</li>
+    <li>Watch it fail</li>
+    <li>Implement if</li>
+    <li>As soon as you end call me</li>
+    <li>Some problems? Call me!</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Iteration 2</h2>
+  <h4>(you have 5 min)</h4>
+  <ul>
+    <li>Implement the "Pim" rule</li>
+    <li>Remember, most simple test that could fail</li>
+    <li>After each test think about if need refactoring</li>
+    <li>Remember, baby steps</li>
+    <li>As soon as you end call me</li>
+    <li>Some problems? Call me!</li>
+  </ul>
+</section>
+
+<section class="separata">
+  <hgroup>
+    <h2>Iteration 2 review</h2>
+
+    <h4>Show your code!</h4>
+  </hgroup>
+  <figure>
+    <img src="./img/review1.jpg">
+    <figcaption>
+      <span>Original by Metro Library and Archive: </span>
+      <a href="http://www.flickr.com/photos/metrolibraryarchive/3267249336/"
+         target="_blank">http://bit.ly/XX1GYa</a>
+    </figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>Iteration 3</h2>
+  <h4>(you have 5 min)</h4>
+  <ul>
+    <li>Implement the "Pam" rule</li>
+    <li>Remember, most simple test that could fail</li>
+    <li>After each test think about if need refactoring</li>
+    <li>Remember, baby steps</li>
+    <li>As soon as you end call me</li>
+    <li>Some problems? Call me!</li>
+  </ul>
+</section>
+
+<section class="separata">
+  <hgroup>
+    <h2>Iteration 3 review</h2>
+
+    <h4>Show your code!</h4>
+  </hgroup>
+  <figure>
+    <img src="./img/review1.jpg">
+    <figcaption>
+      <span>Original by Metro Library and Archive: </span>
+      <a href="http://www.flickr.com/photos/metrolibraryarchive/3267249336/"
+         target="_blank">http://bit.ly/XX1GYa</a>
+    </figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>Iteration 4</h2>
+  <h4>(you have 10 min)</h4>
+  <ul>
+    <li>Implement cases for divisible by 3 and 5</li>
+    <li>Remember, most simple test that could fail</li>
+    <li>After each test think about if need refactoring</li>
+    <li>Remember, baby steps</li>
+    <li>As soon as you end call me</li>
+    <li>Some problems? Call me!</li>
+  </ul>
+</section>
+
+<section class="separata">
+  <hgroup>
+    <h2>Iteration 4 review</h2>
+
+    <h4>Show your code!</h4>
+  </hgroup>
+  <figure>
+    <img src="./img/review1.jpg">
+    <figcaption>
+      <span>Original by Metro Library and Archive: </span>
+      <a href="http://www.flickr.com/photos/metrolibraryarchive/3267249336/"
+         target="_blank">http://bit.ly/XX1GYa</a>
+    </figcaption>
+  </figure>
+</section>
+
+<section class="separata">
+  <hgroup>
+    <h2>Test doubles</h2>
+
+    <h4>(testing collaborations)</h4>
+  </hgroup>
+  <figure>
+    <img src="./img/fake.jpg">
+    <figcaption>
+      <span>Children learning to milk with a fake cow(by Maciej Lewandowski)
+        : </span>
+      <a href="http://www.flickr.com/photos/macieklew/956195788/"
+         target="_blank">http://bit.ly/VLw6AF</a>
+    </figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>Testing collaborations</h2>
+  <img src="img/mock.png">
+</section>
+
+<section>
+  <h2>Types of test doubles</h2>
+
+  <ul>
+    <li>Stubs</li>
+    <li>Spies</li>
+    <li>Mock</li>
+  </ul>
+</section>
+
+<section class="separata">
+  <hgroup>
+    <h2>Code time !!</h2>
+
+    <h3>(enough theory)</h3>
+  </hgroup>
+  <figure>
+    <img src="./img/code.png">
+    <figcaption>
+      <span>What a mess !!</span>
+    </figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>New requisites</h2>
+  <h4>(I always change my mind)</h4>
+  <ul>
+    <li>The set of rules is variable</li>
+    <li>Add "Pum" rule: if number is divisible by 2</li>
+    <li>Add "Toma" rule: if number is exactly 60</li>
+    <li>Add "Gominolase" rule: if number is exactly 180</li>
+    <li>Any rule I wish in the future!!!</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Iteration 5</h2>
+  <h4>(you have 5 min)</h4>
+  <ul>
+    <li>Implement the "Pum" rule</li>
+    <li>It should be very easy</li>
+    <li>As soon as you end call me</li>
+    <li>Some problems? Call me!</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Iteration 6</h2>
+  <h4>(you have 5 min)</h4>
+  <ul>
+    <li>Implement the "Toma" rule</li>
+    <li>Start from the very basics!</li>
+    <li>As soon as you end call me</li>
+    <li>Some problems? Call me!</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Iteration 7</h2>
+  <h4>(you have 10 min)</h4>
+  <ul>
+    <li>Implement the "Gominolas" rule</li>
+    <li>Refactor: "Toma" & "Gominolas" are the same rule</li>
+    <li>As soon as you end call me</li>
+    <li>Some problems? Call me!</li>
+  </ul>
+</section>
+
+<section class="separata">
+  <hgroup>
+    <h2>Iteration 7 review</h2>
+
+    <h4>Show your code!</h4>
+  </hgroup>
+  <figure>
+    <img src="./img/review2.jpg">
+    <figcaption>
+      <span>Inspection Of USS North Carolina (by pirateheart): </span>
+      <a href="http://www.flickr.com/photos/pirateheart/5794882208/"
+         target="_blank">http://bit.ly/12zgnGx</a>
+    </figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>Iteration 8</h2>
+  <h4>(you have 15 min)</h4>
+  <ul>
+    <li>Refactor & Refactor !</li>
+    <li>How can I unify magic numbers and divisible numbers rules?</li>
+    <li>What collaboration does emerge?</li>
+    <li>Remember, use test doubles</li>
+    <li>What do happen with the tests?</li>
+    <li>As soon as you end call me</li>
+    <li>Some problems? Call me!</li>
+  </ul>
+</section>
+
+<section class="separata">
+  <hgroup>
+    <h2>Iteration 8 review</h2>
+
+    <h4>Show your code!</h4>
+  </hgroup>
+  <figure>
+    <img src="./img/review2.jpg">
+    <figcaption>
+      <span>Inspection Of USS North Carolina (by pirateheart): </span>
+      <a href="http://www.flickr.com/photos/pirateheart/5794882208/"
+         target="_blank">http://bit.ly/12zgnGx</a>
+    </figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>Iteration 9</h2>
+  <h4>(you have 10 min)</h4>
+  <ul>
+    <li>Extract the new rules</li>
+    <li>Remember, unit test the new rules</li>
+    <li>Was it easy?</li>
+    <li>As soon as you end call me</li>
+    <li>Some problems? Call me!</li>
+  </ul>
+</section>
+
+<section class="separata">
+  <hgroup>
+    <h2>Iteration 9 review</h2>
+
+    <h4>Show your code!</h4>
+  </hgroup>
+  <figure>
+    <img src="./img/review3.jpg">
+    <figcaption>
+      <span>CTBTO On-Site Inspection Building Up Exercise: </span>
+      <a href="http://www.flickr.com/photos/ctbto/8006140691/"
+         target="_blank">http://bit.ly/V4d31P</a>
+    </figcaption>
+  </figure>
+</section>
+
+<section class="separata">
+  <hgroup>
+    <h2>Testable architectures</h2>
+
+    <h4>(Maintain your code portable)</h4>
+  </hgroup>
+  <figure>
+    <img src="./img/blueprint.jpg">
+    <figcaption>
+      <span>Original by David Moisan: </span>
+      <a href="http://www.flickr.com/photos/davidmoisan/2300764269/in/photostream/"
+         target="_blank">http://bit.ly/11v23zL</a>
+    </figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>Hexagonal architecture</h2>
+
+  <h3>(where is the boundary?)</h3>
+  <img src="img/boundary.png">
+</section>
+
+<section class="separata">
+  <hgroup>
+    <h2>Code time !!</h2>
+
+    <h3>(enough theory)</h3>
+  </hgroup>
+  <figure>
+    <img src="./img/code.png">
+    <figcaption>
+      <span>You can see the boundary layer right there...</span>
+    </figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>New requisites</h2>
+  <h4>(I want a real app)</h4>
+  <ul>
+    <li>The set of rules is configurable</li>
+    <li>Need an UI</li>
+    <li>Need an HTML5 app</li>
+    <li>Need an iPhone app</li>
+    <li>Need an Android app</li>
+    <li>Need a Windows app</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Iteration 10</h2>
+  <h4>(you have 30 min)</h4>
+  <ul>
+    <li>Implement & <em>unit</em> test the UI logic</li>
+    <li>Remember, the more code you can unit test, the better</li>
+    <li>The boundary layer for the UI must be as thin as possible</li>
+    <li>What collaboration with the UI does emerge?</li>
+    <li>What interface does the "boundary layer" has?</li>
+    <li>Can you implement the "boundary layer" for the UI?</li>
+    <li>As soon as you end call me</li>
+    <li>Some problems? Call me!</li>
+  </ul>
+</section>
+
+<section class="separata">
+  <hgroup>
+    <h2>Iteration 10 review</h2>
+
+    <h4>Show your code!</h4>
+  </hgroup>
+  <figure>
+    <img src="./img/review4.jpg"
+         style="position: absolute;bottom: 1.2em;top:auto;">
+    <figcaption>
+      <span>Original by Emory Allen: </span>
+      <a href="http://www.flickr.com/photos/ocularinvasion/5505346178/in/photostream/"
+         target="_blank">http://bit.ly/14I0RH6</a>
+    </figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>Iteration 11</h2>
+  <h4>(you have 30 min)</h4>
+  <ul>
+    <li>The configuration can be in a file, via AJAX, in the DOM...</li>
+    <li>Remember, the more code you can unit test, the better</li>
+    <li>The boundary layer for reading the configuration must be as thin as
+      possible
+    </li>
+    <li>Can you implement this "boundary layer"?</li>
+    <li>As soon as you end call me</li>
+    <li>Some problems? Call me!</li>
+  </ul>
+</section>
+
+<section class="separata">
+  <hgroup>
+    <h2>Iteration 11 review</h2>
+
+    <h4>Show your code!</h4>
+  </hgroup>
+  <figure>
+    <img src="./img/review5.jpg">
+    <figcaption>
+      <span>Original by US Army Africa: </span>
+      <a href="http://www.flickr.com/photos/usarmyafrica/4149857219/"
+         target="_blank">http://bit.ly/77rlnu</a>
+    </figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>Concluding thoughts</h2>
+  <h4>Do I need more tests?</h4>
+
+  <ul>
+    <li>Do I need to do integration test for my boundary layers?</li>
+    <li>Do I need end to end tests?</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Concluding thoughts</h2>
+  <h4>Supporting multiple platforms</h4>
+
+  <ul>
+    <li class="fragment">Hexagonal architecture: my business logic is portable
+    </li>
+    <li class="fragment">No problem: only need to change the boundary layer</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Concluding thoughts</h2>
+  <h4>Technology is always changing</h4>
+<h4>Have a look at my GitHub repo here <a src="https://github.com/eamodeorubio/pimpam-kata" target="_blank">http://bit.ly/13nEkkL</a></h4>
+  <ul>
+    <li class="fragment">My framework can be deprecated</li>
+    <li class="fragment">My tool stack can get rusty</li>
+    <li class="fragment">No problem: only need to change the boundary layer</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Concluding thoughts</h2>
+  <h4>Next steps</h4>
+
+  <ul>
+    <li>Try doing this again at your home, with calm</li>
+    <li>Have a look at my GitHub repo here <a href="https://github.com/eamodeorubio/pimpam-kata" target="_blank">http://bit.ly/13nEkkL</a></li>
+    <li>Practice, practice & practice</li>
+  </ul>
+</section>
+
+<section class="separata">
+  <hgroup>
+    <h2>Thanks!</h2>
+
+    <h3>Hope you had fun!</h3>
+  </hgroup>
+  <figure>
+    <img src="./img/notes.jpg">
+    <figcaption>
+      <span>Original by Mike Ambs: </span>
+      <a href="http://www.flickr.com/photos/mike_1630/1227622542/"
+         target="_blank">http://bit.ly/10IWmrY</a>
+    </figcaption>
+  </figure>
+</section>
+
+</div>
+
+</div>
+
+
+<script src="reveal.js-2.1/lib/js/head.min.js"></script>
+<script src="reveal.js-2.1/js/reveal.min.js"></script>
+
+<script>
+
+  // Full list of configuration options available here:
+  // https://github.com/hakimel/reveal.js#configuration
+  Reveal.initialize({
+    controls:true,
+    progress:true,
+    history:true,
+
+    theme:Reveal.getQueryHash().theme, // available themes are in /css/theme
+    transition:Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/none
+
+    // Optional libraries used to extend on reveal.js
+    dependencies:[
+      { src:'reveal.js-2.1/lib/js/classList.js', condition:function () {
+        return !document.body.classList;
+      } },
+      { src:'reveal.js-2.1/plugin/markdown/showdown.js', condition:function () {
+        return !!document.querySelector('[data-markdown]');
+      } },
+      { src:'reveal.js-2.1/plugin/markdown/markdown.js', condition:function () {
+        return !!document.querySelector('[data-markdown]');
+      } },
+      { src:'reveal.js-2.1/plugin/highlight/highlight.js', async:true, callback:function () {
+        hljs.initHighlightingOnLoad();
+      } },
+      { src:'reveal.js-2.1/plugin/zoom-js/zoom.js', async:true, condition:function () {
+        return !!document.body.classList;
+      } },
+      { src:'reveal.js-2.1/plugin/notes/notes.js', async:true, condition:function () {
+        return !!document.body.classList;
+      } }
+    ]
+  });
+
+</script>
+
+</body>
+</html>
